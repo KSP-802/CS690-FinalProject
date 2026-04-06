@@ -12,3 +12,4 @@
 /Users/sklargemac/Documents/projects/CS690-FinalProject/src/OliversLearningTracker/obj/Debug/net10.0/OliversLearningTracker.pdb
 /Users/sklargemac/Documents/projects/CS690-FinalProject/src/OliversLearningTracker/obj/Debug/net10.0/OliversLearningTracker.genruntimeconfig.cache
 /Users/sklargemac/Documents/projects/CS690-FinalProject/src/OliversLearningTracker/obj/Debug/net10.0/ref/OliversLearningTracker.dll
+/Users/sklargemac/Documents/projects/CS690-FinalProject/src/OliversLearningTracker/obj/Debug/net10.0/OliversLearningTracker.sourcelink.json

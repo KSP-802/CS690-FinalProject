@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OliversLearningTracker")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1715f96798c096d7d8523f7aa66912c1cf0aa610")]
 [assembly: System.Reflection.AssemblyProductAttribute("OliversLearningTracker")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OliversLearningTracker")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

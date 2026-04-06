@@ -1,32 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
-List<Book> books = new();
-List<Article> articles = new();
-List<ReadingSession> sessions = new();
-
-ReadingSession? activeSession = null;
-
-int nextBookId = 1;
-int nextArticleId = 1;
-int nextSessionId = 1;
+var libraryService = new LibraryService();
+var readingService = new ReadingService();
+var menu = new Menu();
 
 while (true)
 {
     Console.Clear();
-    Console.WriteLine("====================================");
-    Console.WriteLine(" Oliver's Learning Tracker");
-    Console.WriteLine("====================================");
-    Console.WriteLine("1. Add Book");
-    Console.WriteLine("2. View Books");
-    Console.WriteLine("3. Add Article");
-    Console.WriteLine("4. View Articles");
-    Console.WriteLine("5. Start Reading Session");
-    Console.WriteLine("6. End Reading Session");
-    Console.WriteLine("7. Exit");
-    Console.Write("Select an option: ");
+    menu.Show();
 
+    Console.Write("Select an option: ");
     string? choice = Console.ReadLine();
 
     switch (choice)
@@ -56,6 +40,22 @@ while (true)
             break;
 
         case "7":
+            DeleteBook();
+            break;
+
+        case "8":
+            SearchBooks();
+            break;
+
+        case "9":
+            ViewReadingHistory();
+            break;
+
+        case "10":
+            ViewTotalPagesRead();
+            break;
+
+        case "11":
             Console.WriteLine("Goodbye!");
             return;
 
@@ -80,15 +80,9 @@ void AddBook()
     Console.Write("Total Pages: ");
     int.TryParse(Console.ReadLine(), out int pages);
 
-    books.Add(new Book
-    {
-        Id = nextBookId++,
-        Title = title,
-        Author = author,
-        TotalPages = pages
-    });
+    libraryService.AddBook(title, author, pages);
 
-    Console.WriteLine("Book added.");
+    Console.WriteLine("Book added successfully.");
     Pause();
 }
 
@@ -97,7 +91,9 @@ void ViewBooks()
     Console.Clear();
     Console.WriteLine("--- Books ---");
 
-    if (!books.Any())
+    var books = libraryService.GetBooks();
+
+    if (books.Count == 0)
     {
         Console.WriteLine("No books found.");
     }
@@ -123,15 +119,9 @@ void AddArticle()
     Console.Write("URL: ");
     string url = Console.ReadLine() ?? "";
 
-    articles.Add(new Article
-    {
-        Id = nextArticleId++,
-        Title = title,
-        Url = url,
-        DateSaved = DateTime.Now
-    });
+    libraryService.AddArticle(title, url);
 
-    Console.WriteLine("Article saved.");
+    Console.WriteLine("Article added successfully.");
     Pause();
 }
 
@@ -140,7 +130,9 @@ void ViewArticles()
     Console.Clear();
     Console.WriteLine("--- Articles ---");
 
-    if (!articles.Any())
+    var articles = libraryService.GetArticles();
+
+    if (articles.Count == 0)
     {
         Console.WriteLine("No articles found.");
     }
@@ -148,7 +140,9 @@ void ViewArticles()
     {
         foreach (var article in articles)
         {
-            Console.WriteLine($"{article.Id}. {article.Title} ({article.Url}) | Saved: {article.DateSaved}");
+            Console.WriteLine($"{article.Id}. {article.Title}");
+            Console.WriteLine($"   URL: {article.Url}");
+            Console.WriteLine($"   Saved: {article.DateSaved}");
         }
     }
 
@@ -160,14 +154,9 @@ void StartReadingSession()
     Console.Clear();
     Console.WriteLine("--- Start Reading Session ---");
 
-    if (activeSession != null)
-    {
-        Console.WriteLine("A reading session is already active.");
-        Pause();
-        return;
-    }
+    var books = libraryService.GetBooks();
 
-    if (!books.Any())
+    if (books.Count == 0)
     {
         Console.WriteLine("No books available.");
         Pause();
@@ -179,27 +168,21 @@ void StartReadingSession()
         Console.WriteLine($"{book.Id}. {book.Title}");
     }
 
-    Console.Write("Book ID: ");
+    Console.Write("Enter Book ID: ");
     int.TryParse(Console.ReadLine(), out int bookId);
 
-    var bookSelected = books.FirstOrDefault(b => b.Id == bookId);
+    var selectedBook = books.FirstOrDefault(b => b.Id == bookId);
 
-    if (bookSelected == null)
+    if (selectedBook == null)
     {
-        Console.WriteLine("Invalid selection.");
+        Console.WriteLine("Invalid Book ID.");
         Pause();
         return;
     }
 
-    activeSession = new ReadingSession
-    {
-        SessionId = nextSessionId++,
-        BookId = bookSelected.Id,
-        BookTitle = bookSelected.Title,
-        StartTime = DateTime.Now
-    };
+    string result = readingService.StartSession(selectedBook);
 
-    Console.WriteLine($"Reading session started for {bookSelected.Title}.");
+    Console.WriteLine(result);
     Pause();
 }
 
@@ -208,36 +191,109 @@ void EndReadingSession()
     Console.Clear();
     Console.WriteLine("--- End Reading Session ---");
 
-    if (activeSession == null)
+    Console.Write("Pages Read: ");
+    int.TryParse(Console.ReadLine(), out int pagesRead);
+
+    string result = readingService.EndSession(pagesRead);
+
+    Console.WriteLine(result);
+    Pause();
+}
+
+void DeleteBook()
+{
+    Console.Clear();
+    Console.WriteLine("--- Delete Book ---");
+
+    var books = libraryService.GetBooks();
+
+    if (books.Count == 0)
     {
-        Console.WriteLine("No active session.");
+        Console.WriteLine("No books available.");
         Pause();
         return;
     }
 
-    Console.Write("Pages read: ");
-    int.TryParse(Console.ReadLine(), out int pages);
+    foreach (var book in books)
+    {
+        Console.WriteLine($"{book.Id}. {book.Title}");
+    }
 
-    activeSession.EndTime = DateTime.Now;
-    activeSession.PagesRead = pages;
+    Console.Write("Enter Book ID to delete: ");
+    int.TryParse(Console.ReadLine(), out int bookId);
 
-    sessions.Add(activeSession);
+    libraryService.DeleteBook(bookId);
 
-    var duration = activeSession.EndTime.Value - activeSession.StartTime;
+    Console.WriteLine("Book deleted if ID existed.");
+    Pause();
+}
 
-    Console.WriteLine($"Session saved for {activeSession.BookTitle}.");
-    Console.WriteLine($"Duration: {duration.TotalMinutes:F1} minutes");
-    Console.WriteLine($"Pages Read: {activeSession.PagesRead}");
+void SearchBooks()
+{
+    Console.Clear();
+    Console.WriteLine("--- Search Books ---");
 
-    activeSession = null;
+    Console.Write("Enter keyword: ");
+    string keyword = Console.ReadLine() ?? "";
 
+    var results = libraryService.SearchBooks(keyword);
+
+    if (results.Count == 0)
+    {
+        Console.WriteLine("No matching books found.");
+    }
+    else
+    {
+        foreach (var book in results)
+        {
+            Console.WriteLine($"{book.Id}. {book.Title} by {book.Author}");
+        }
+    }
+
+    Pause();
+}
+
+void ViewReadingHistory()
+{
+    Console.Clear();
+    Console.WriteLine("--- Reading History ---");
+
+    var sessions = readingService.GetSessions();
+
+    if (sessions.Count == 0)
+    {
+        Console.WriteLine("No reading history available.");
+    }
+    else
+    {
+        foreach (var session in sessions)
+        {
+            Console.WriteLine($"Book: {session.BookTitle}");
+            Console.WriteLine($"Start: {session.StartTime}");
+            Console.WriteLine($"End: {session.EndTime}");
+            Console.WriteLine($"Pages Read: {session.PagesRead}");
+            Console.WriteLine();
+        }
+    }
+
+    Pause();
+}
+
+void ViewTotalPagesRead()
+{
+    Console.Clear();
+    Console.WriteLine("--- Total Pages Read ---");
+
+    int totalPages = readingService.GetTotalPagesRead();
+
+    Console.WriteLine($"Total Pages Read: {totalPages}");
     Pause();
 }
 
 void Pause()
 {
+    Console.WriteLine();
     Console.WriteLine("Press Enter to continue...");
     Console.ReadLine();
 }
-
 

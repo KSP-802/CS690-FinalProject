@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OliversLearningTracker/OliversLearningTracker.csproj" />
+  </Folder>
+  <Project Path="OliversLearningTracker.Tests/OliversLearningTracker.Tests.csproj" />
+</Solution>

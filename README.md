@@ -79,3 +79,21 @@ Run tests with:
 
 ```bash
 dotnet test CS690-FinalProject.slnx
+
+CS690-FinalProject
+├── src
+│   └── OliversLearningTracker
+│       ├── Models
+│       │   ├── Book.cs
+│       │   ├── Article.cs
+│       │   ├── ReadingSession.cs
+│       │   └── Category.cs
+│       ├── Services
+│       │   ├── LibraryService.cs
+│       │   └── ReadingService.cs
+│       ├── UI
+│       │   └── Menu.cs
+│       ├── Program.cs
+│       └── OliversLearningTracker.csproj
+├── OliversLearningTracker.Tests
+├── CS690-FinalProject.slnx

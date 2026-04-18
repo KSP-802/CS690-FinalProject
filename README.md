@@ -2,98 +2,80 @@
 
 Oliver's Learning Tracker is a console-based .NET 10 application developed for the CS690 Final Project.
 
-The application helps users organize books, save learning articles, and track reading sessions.
+The application helps users organize books, save learning articles, manage categories, and track reading sessions, goals, and statistics.
 
-## Version 2.0.0 Features
+---
+
+## Version 3.0.0 Features (Final)
 
 ### Core Features
 - Add Book
 - View Books
+- Mark Book as Completed with Completion Date
 - Add Article
 - View Articles
-- Start Reading Session
-- End Reading Session
 
-### Version 2 Additional Functional Requirements
+### Category Management
+- Create Categories
+- Assign Categories to Books
+- Assign Categories to Articles
+
+### Reading Session Tracking
+- Start Reading Session
+- End Reading Session (tracks pages read and duration)
+
+### Analytics and Goals
+- View Yearly Statistics (books completed and hours read)
+- Set Yearly Reading Goal
+- View Goal Progress
+
+### Additional Features (Version 2 Enhancements)
 - Delete Book
 - Search Books
 - View Reading History
 - View Total Pages Read
 
+---
+
 ## Modular Structure
 
-The application is organized into the following modules:
+The application follows a modular design:
 
 ### Models
 - `Book.cs`
 - `Article.cs`
 - `ReadingSession.cs`
+- `Category.cs`
 
 ### Services
-- `LibraryService.cs`
-- `ReadingService.cs`
+- `LibraryService.cs` (books, articles, categories)
+- `ReadingService.cs` (sessions, goals, statistics)
 
 ### UI
-- `Menu.cs`
+- `Menu.cs` (console interface)
 
 ### Program
-- `Program.cs`
+- `Program.cs` (application flow and orchestration)
 
-This modular structure improves readability, maintainability, and testability.
+This modular structure improves:
+- readability
+- maintainability
+- testability
 
-## Technologies Used
+---
 
-- C#
-- .NET 10
-- Console Application
-- xUnit (for testing, if included)
+## Testing
 
-## Project Structure
+A separate test project is included:
 
-```text
-CS690-FinalProject
-├── src
-│   └── OliversLearningTracker
-│       ├── Models
-│       │   ├── Book.cs
-│       │   ├── Article.cs
-│       │   └── ReadingSession.cs
-│       ├── Services
-│       │   ├── LibraryService.cs
-│       │   └── ReadingService.cs
-│       ├── UI
-│       │   └── Menu.cs
-│       ├── Program.cs
-│       └── OliversLearningTracker.csproj
+- `OliversLearningTracker.Tests`
 
-## How to Run
+Tests cover:
+- LibraryService
+- ReadingService
+- Menu
 
-Clone the repository:
+Run tests with:
 
-git clone https://github.com/KSP-802/CS690-FinalProject.git
-
-Navigate to the project:
-
-cd CS690-FinalProject/src/OliversLearningTracker
-
-Run the application:
-
-dotnet run
-
-## Releases
-
-- v1.0.0 — Initial working console version
-- v2.0.0 — Modular and enhanced version with additional functional requirements
-
-## Purpose
-
-Even at Version 2.0.0, the software is already functional and useful because users can:
-
-- manage books
-- save learning articles
-- track reading sessions
-- search books
-- remove books
-- review reading history
-- monitor total pages read
-This makes the system meaningful for Oliver even if development stopped after Iteration 2.
+```bash
+dotnet test CS690-FinalProject.slnx

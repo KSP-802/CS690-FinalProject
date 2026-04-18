@@ -1,7 +1,22 @@
+# Build folders
 bin/
 obj/
+
+# macOS files
 .DS_Store
 
-bin/
-obj/
-.DS_Store
+# Visual Studio / VS Code
+.vs/
+.vscode/
+
+# Test results
+TestResults/
+
+# NuGet
+*.nupkg
+
+# Logs
+*.log
+
+# Runtime zips (keep only final release)
+*-runtime.zip

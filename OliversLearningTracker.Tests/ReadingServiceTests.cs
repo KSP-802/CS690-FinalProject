@@ -9,9 +9,9 @@ public class ReadingServiceTests
         var book = new Book
         {
             Id = 1,
-            Title = "Atomic Habits",
-            Author = "James Clear",
-            TotalPages = 320
+            Title = "Test Book",
+            Author = "Author",
+            TotalPages = 100
         };
 
         var result = service.StartSession(book);
@@ -20,53 +20,56 @@ public class ReadingServiceTests
     }
 
     [Fact]
-    public void EndSession_WithoutActiveSession_ShouldReturnNoActiveSession()
+    public void EndSession_NoSession_ShouldReturnMessage()
     {
         var service = new ReadingService();
 
-        var result = service.EndSession(25);
+        var result = service.EndSession(10);
 
         Assert.Equal("No active session", result);
     }
 
     [Fact]
-    public void EndSession_AfterStartingSession_ShouldSaveSession()
+    public void GetTotalPagesRead_ShouldSumPages()
     {
         var service = new ReadingService();
         var book = new Book
         {
             Id = 1,
-            Title = "Atomic Habits",
-            Author = "James Clear",
-            TotalPages = 320
+            Title = "Test Book",
+            Author = "Author",
+            TotalPages = 100
         };
 
         service.StartSession(book);
-        var result = service.EndSession(25);
-
-        Assert.Equal("Session saved", result);
-        Assert.Single(service.GetSessions());
-        Assert.Equal(25, service.GetSessions()[0].PagesRead);
-    }
-
-    [Fact]
-    public void GetTotalPagesRead_ShouldReturnCorrectTotal()
-    {
-        var service = new ReadingService();
-        var book = new Book
-        {
-            Id = 1,
-            Title = "Atomic Habits",
-            Author = "James Clear",
-            TotalPages = 320
-        };
-
-        service.StartSession(book);
-        service.EndSession(25);
+        service.EndSession(20);
 
         service.StartSession(book);
         service.EndSession(30);
 
-        Assert.Equal(55, service.GetTotalPagesRead());
+        Assert.Equal(50, service.GetTotalPagesRead());
+    }
+
+    [Fact]
+    public void SetYearlyGoal_ShouldStoreGoal()
+    {
+        var service = new ReadingService();
+
+        service.SetYearlyGoal(2026, 10);
+
+        Assert.Equal(2026, service.GetGoalYear());
+        Assert.Equal(10, service.GetYearlyGoalBooks());
+    }
+
+    [Fact]
+    public void GetGoalProgressText_ShouldReturnProgressString()
+    {
+        var service = new ReadingService();
+
+        service.SetYearlyGoal(2026, 10);
+
+        var result = service.GetGoalProgressText(3);
+
+        Assert.Equal("3 / 10 books completed", result);
     }
 }

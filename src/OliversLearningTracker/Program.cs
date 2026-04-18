@@ -24,38 +24,58 @@ while (true)
             break;
 
         case "3":
-            AddArticle();
+            MarkBookCompleted();
             break;
 
         case "4":
-            ViewArticles();
+            AddArticle();
             break;
 
         case "5":
-            StartReadingSession();
+            ViewArticles();
             break;
 
         case "6":
-            EndReadingSession();
+            CreateCategory();
             break;
 
         case "7":
-            DeleteBook();
+            AssignCategory();
             break;
 
         case "8":
-            SearchBooks();
+            StartReadingSession();
             break;
 
         case "9":
-            ViewReadingHistory();
+            EndReadingSession();
             break;
 
         case "10":
-            ViewTotalPagesRead();
+            ViewYearlyStatistics();
             break;
 
         case "11":
+            SetYearlyGoal();
+            break;
+
+        case "12":
+            DeleteBook();
+            break;
+
+        case "13":
+            SearchBooks();
+            break;
+
+        case "14":
+            ViewReadingHistory();
+            break;
+
+        case "15":
+            ViewTotalPagesRead();
+            break;
+
+        case "16":
             Console.WriteLine("Goodbye!");
             return;
 
@@ -102,9 +122,55 @@ void ViewBooks()
         foreach (var book in books)
         {
             Console.WriteLine($"{book.Id}. {book.Title} by {book.Author} | Pages: {book.TotalPages}");
+            Console.WriteLine($"   Completed: {(book.IsCompleted ? "Yes" : "No")}");
+            if (book.CompletedDate.HasValue)
+            {
+                Console.WriteLine($"   Completed Date: {book.CompletedDate.Value:d}");
+            }
+            if (book.Categories.Count > 0)
+            {
+                Console.WriteLine($"   Categories: {string.Join(", ", book.Categories)}");
+            }
         }
     }
 
+    Pause();
+}
+
+void MarkBookCompleted()
+{
+    Console.Clear();
+    Console.WriteLine("--- Mark Book Completed ---");
+
+    var books = libraryService.GetBooks();
+
+    if (books.Count == 0)
+    {
+        Console.WriteLine("No books available.");
+        Pause();
+        return;
+    }
+
+    foreach (var book in books)
+    {
+        Console.WriteLine($"{book.Id}. {book.Title}");
+    }
+
+    Console.Write("Enter Book ID: ");
+    int.TryParse(Console.ReadLine(), out int bookId);
+
+    Console.Write("Enter completion date (yyyy-mm-dd) or leave blank for today: ");
+    string? input = Console.ReadLine();
+
+    DateTime completionDate = DateTime.Today;
+    if (!string.IsNullOrWhiteSpace(input))
+    {
+        DateTime.TryParse(input, out completionDate);
+    }
+
+    bool success = libraryService.MarkBookCompleted(bookId, completionDate);
+
+    Console.WriteLine(success ? "Book marked completed." : "Book not found.");
     Pause();
 }
 
@@ -143,7 +209,104 @@ void ViewArticles()
             Console.WriteLine($"{article.Id}. {article.Title}");
             Console.WriteLine($"   URL: {article.Url}");
             Console.WriteLine($"   Saved: {article.DateSaved}");
+            if (article.Categories.Count > 0)
+            {
+                Console.WriteLine($"   Categories: {string.Join(", ", article.Categories)}");
+            }
         }
+    }
+
+    Pause();
+}
+
+void CreateCategory()
+{
+    Console.Clear();
+    Console.WriteLine("--- Create Category ---");
+
+    Console.Write("Category name: ");
+    string name = Console.ReadLine() ?? "";
+
+    string result = libraryService.CreateCategory(name);
+    Console.WriteLine(result);
+
+    Pause();
+}
+
+void AssignCategory()
+{
+    Console.Clear();
+    Console.WriteLine("--- Assign Category ---");
+
+    var categories = libraryService.GetCategories();
+
+    if (categories.Count == 0)
+    {
+        Console.WriteLine("No categories available. Create a category first.");
+        Pause();
+        return;
+    }
+
+    Console.WriteLine("Assign to:");
+    Console.WriteLine("1. Book");
+    Console.WriteLine("2. Article");
+    Console.Write("Select option: ");
+    string? targetChoice = Console.ReadLine();
+
+    Console.WriteLine("Available Categories:");
+    foreach (var category in categories)
+    {
+        Console.WriteLine($"{category.Id}. {category.Name}");
+    }
+
+    Console.Write("Enter Category ID: ");
+    int.TryParse(Console.ReadLine(), out int categoryId);
+
+    if (targetChoice == "1")
+    {
+        var books = libraryService.GetBooks();
+        if (books.Count == 0)
+        {
+            Console.WriteLine("No books available.");
+            Pause();
+            return;
+        }
+
+        foreach (var book in books)
+        {
+            Console.WriteLine($"{book.Id}. {book.Title}");
+        }
+
+        Console.Write("Enter Book ID: ");
+        int.TryParse(Console.ReadLine(), out int bookId);
+
+        string result = libraryService.AssignCategoryToBook(bookId, categoryId);
+        Console.WriteLine(result);
+    }
+    else if (targetChoice == "2")
+    {
+        var articles = libraryService.GetArticles();
+        if (articles.Count == 0)
+        {
+            Console.WriteLine("No articles available.");
+            Pause();
+            return;
+        }
+
+        foreach (var article in articles)
+        {
+            Console.WriteLine($"{article.Id}. {article.Title}");
+        }
+
+        Console.Write("Enter Article ID: ");
+        int.TryParse(Console.ReadLine(), out int articleId);
+
+        string result = libraryService.AssignCategoryToArticle(articleId, categoryId);
+        Console.WriteLine(result);
+    }
+    else
+    {
+        Console.WriteLine("Invalid option.");
     }
 
     Pause();
@@ -181,8 +344,8 @@ void StartReadingSession()
     }
 
     string result = readingService.StartSession(selectedBook);
-
     Console.WriteLine(result);
+
     Pause();
 }
 
@@ -195,8 +358,42 @@ void EndReadingSession()
     int.TryParse(Console.ReadLine(), out int pagesRead);
 
     string result = readingService.EndSession(pagesRead);
-
     Console.WriteLine(result);
+
+    Pause();
+}
+
+void ViewYearlyStatistics()
+{
+    Console.Clear();
+    Console.WriteLine("--- Yearly Statistics ---");
+
+    int year = DateTime.Now.Year;
+    int completedBooks = libraryService.GetCompletedBooksCountForYear(year);
+    double hoursRead = readingService.GetTotalHoursReadForYear(year);
+    string goalProgress = readingService.GetGoalProgressText(completedBooks);
+
+    Console.WriteLine($"Year: {year}");
+    Console.WriteLine($"Books Completed: {completedBooks}");
+    Console.WriteLine($"Hours Read: {hoursRead:F2}");
+    Console.WriteLine($"Goal Progress: {goalProgress}");
+
+    Pause();
+}
+
+void SetYearlyGoal()
+{
+    Console.Clear();
+    Console.WriteLine("--- Set Yearly Goal ---");
+
+    int year = DateTime.Now.Year;
+
+    Console.Write($"Enter number of books to complete in {year}: ");
+    int.TryParse(Console.ReadLine(), out int goalBooks);
+
+    readingService.SetYearlyGoal(year, goalBooks);
+
+    Console.WriteLine("Yearly goal saved.");
     Pause();
 }
 
@@ -285,8 +482,8 @@ void ViewTotalPagesRead()
     Console.WriteLine("--- Total Pages Read ---");
 
     int totalPages = readingService.GetTotalPagesRead();
-
     Console.WriteLine($"Total Pages Read: {totalPages}");
+
     Pause();
 }
 
